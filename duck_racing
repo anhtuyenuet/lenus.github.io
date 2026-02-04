@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đua Vịt Thần Tốc</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cherry+Bomb+One&display=swap');
+    </style>
+    
+    <style>
+        /* --- CẤU HÌNH MÀU SẮC --- */
+        :root {
+            --trad-red: #8E0000;       
+            --trad-red-light: #b71c1c; 
+            --trad-gold: #D4AF37;      
+            --trad-paper: #fff8e1; /* Màu đường đua bạn chọn */    
+            --text-shadow: 2px 2px 0px #3e0000;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1a0505;
+            font-family: 'Cherry Bomb One', cursive; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- KHUNG MÀN HÌNH CHÍNH --- */
+        #app-container {
+            width: 100%;
+            max-width: 1920px;
+            aspect-ratio: 16/9;
+            position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            overflow: hidden;
+            
+            /* UPDATE 1: Padding trên dưới 50px, trái phải 20% */
+            padding: 50px 20%; 
+            
+            box-sizing: border-box; 
+            border: 8px double var(--trad-gold);
+            
+            /* Họa tiết nền đỏ */
+            background-color: var(--trad-red);
+            background-image: 
+                radial-gradient(circle at 100% 150%, var(--trad-red) 24%, transparent 25%, transparent 28%, var(--trad-red) 29%, var(--trad-red) 36%, transparent 37%, transparent 40%, var(--trad-red) 41%, var(--trad-red) 49%, transparent 50%, transparent 53%, var(--trad-red) 54%, var(--trad-red) 62%, transparent 63%, transparent 66%, var(--trad-red) 67%, var(--trad-red) 75%, transparent 76%, transparent 79%, var(--trad-red) 80%, var(--trad-red) 88%, transparent 89%, transparent 92%, var(--trad-red) 93%, var(--trad-red) 100%),
+                radial-gradient(circle at 0% 150%, var(--trad-red) 24%, transparent 25%, transparent 28%, var(--trad-red) 29%, var(--trad-red) 36%, transparent 37%, transparent 40%, var(--trad-red) 41%, var(--trad-red) 49%, transparent 50%, transparent 53%, var(--trad-red) 54%, var(--trad-red) 62%, transparent 63%, transparent 66%, var(--trad-red) 67%, var(--trad-red) 75%, transparent 76%, transparent 79%, var(--trad-red) 80%, var(--trad-red) 88%, transparent 89%, transparent 92%, var(--trad-red) 93%, var(--trad-red) 100%),
+                radial-gradient(circle at 50% 100%, var(--trad-red-light) 10%, transparent 11%),
+                radial-gradient(circle at 100% 50%, var(--trad-red-light) 5%, transparent 6%),
+                radial-gradient(circle at 0% 50%, var(--trad-red-light) 5%, transparent 6%);
+            background-size: 100px 50px;
+        }
+
+        /* --- CÁC MÀN HÌNH --- */
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            /* Đảm bảo nội dung không bị dính vào padding của container */
+            pointer-events: none; 
+        }
+        
+        /* Cho phép click vào các phần tử con */
+        .screen * {
+            pointer-events: auto;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* --- TYPOGRAPHY & INPUTS --- */
+        h1, h2 {
+            color: var(--trad-gold);
+            text-transform: uppercase;
+            font-size: 3.5rem; 
+            margin-bottom: 30px;
+            text-shadow: var(--text-shadow);
+            padding-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .input-group {
+            background: rgba(0,0,0,0.3);
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px dashed var(--trad-gold); 
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            color: var(--trad-paper);
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        input {
+            padding: 10px;
+            font-size: 2rem;
+            border: 3px solid var(--trad-gold);
+            background: var(--trad-paper);
+            color: #8E0000;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            text-align: center;
+            width: 150px;
+            font-family: 'Cherry Bomb One', cursive; 
+        }
+
+        button {
+            padding: 15px 50px;
+            font-size: 1.8rem;
+            background-color: var(--trad-gold);
+            color: #8E0000;
+            border: 2px solid #fff;
+            border-radius: 50px; 
+            cursor: pointer;
+            font-family: 'Cherry Bomb One', cursive; 
+            text-transform: uppercase;
+            box-shadow: 0 6px 0 #8c701c;
+            transition: all 0.1s;
+        }
+
+        button:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #8c701c;
+        }
+
+        /* --- MÀN HÌNH ĐUA (RACE TRACK) --- */
+        #race-track {
+            position: relative;
+            /* Cách 2 bên margin 100px so với padding cha */
+            width: calc(100% - 200px); 
+            margin: 0 auto; 
+            height: 100%; /* Full chiều cao của vùng hiển thị (đã trừ padding cha 50px) */
+            
+            display: flex;
+            flex-direction: column;
+            
+            /* UPDATE 2: Màu nền đường đua */
+            background-color: var(--trad-paper); /* #fff8e1 */
+            border-radius: 15px;
+            border: 4px solid var(--trad-gold);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        /* Chữ Start / Finish */
+        .start-text, .finish-text {
+            position: absolute;
+            top: -45px; /* Đẩy lên cao hơn chút để khỏi dính border */
+            font-size: 1.5rem;
+            color: var(--trad-gold);
+            text-shadow: 2px 2px 0 #000;
+        }
+        .start-text { left: -10px; }
+        .finish-text { right: -10px; }
+
+        .lane {
+            position: relative;
+            width: 100%;
+            flex: 1;
+            /* Đổi màu kẻ dòng sang đỏ nhạt để nổi trên nền kem */
+            border-bottom: 1px dashed rgba(142, 0, 0, 0.2); 
+        }
+        
+        .lane:last-child {
+            border-bottom: none;
+        }
+
+        /* CON VỊT */
+        .duck-circle {
+            width: 45px;
+            height: 45px;
+            background-color: var(--trad-gold);
+            border: 3px solid #fff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #8E0000;
+            font-size: 20px;
+            /* Thêm bóng đổ để nổi trên nền sáng */
+            box-shadow: 2px 4px 6px rgba(0,0,0,0.3);
+            
+            position: absolute;
+            left: 0;
+            top: 50%; 
+            margin-top: -22.5px; 
+            
+            z-index: 10;
+            will-change: transform, left;
+        }
+
+        .duck-circle::after {
+            content: '';
+            position: absolute;
+            right: -8px;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+            border-left: 10px solid #fff;
+        }
+
+        /* --- KẾT QUẢ --- */
+        #result-screen h2 {
+            font-size: 4rem;
+        }
+        #winner-number {
+            font-size: 9rem;
+            color: var(--trad-paper);
+            text-shadow: 5px 5px 0 var(--trad-gold);
+            margin: 10px 0;
+            line-height: 1;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        
+        <div id="setup-screen" class="screen active">
+            <h1>Hội Đua Vịt</h1>
+            <div class="input-group">
+                <label>Số Vận Động Viên:</label>
+                <input type="number" id="duck-count" min="2" max="20" value="5">
+                <br>
+                <button onclick="setupRace()">Khai Hội</button>
+            </div>
+        </div>
+
+        <div id="race-screen" class="screen">
+            <div id="race-track">
+                <div class="start-text">Xuất phát</div>
+                <div class="finish-text">Đích</div>
+                </div>
+        </div>
+
+        <div id="result-screen" class="screen">
+            <h2>Chúc Mừng</h2>
+            <div style="font-size: 2rem; color: var(--trad-gold);">Chiến Thần Số</div>
+            <div id="winner-number">01</div>
+            <button onclick="resetGame()" style="margin-top: 30px;">Đua Lại</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- JS LOGIC GIỮ NGUYÊN ---
+        let ducks = [];
+        let raceInterval = null;
+        let isRacing = false;
+        const frameRate = 20; 
+
+        const setupScreen = document.getElementById('setup-screen');
+        const raceScreen = document.getElementById('race-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const raceTrack = document.getElementById('race-track');
+        const winnerDisplay = document.getElementById('winner-number');
+
+        function switchScreen(screenName) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            if(screenName === 'setup') setupScreen.classList.add('active');
+            if(screenName === 'race') raceScreen.classList.add('active');
+            if(screenName === 'result') resultScreen.classList.add('active');
+        }
+
+        function setupRace() {
+            const count = parseInt(document.getElementById('duck-count').value);
+            if (isNaN(count) || count < 2) {
+                alert("Cần ít nhất 2 vịt để đua!");
+                return;
+            }
+            if (count > 50) {
+                alert("Tối đa 50 vịt thôi nhé!");
+                return;
+            }
+
+            // Reset track
+            raceTrack.innerHTML = '<div class="start-text">Xuất phát</div><div class="finish-text">Đích</div>';
+            ducks = [];
+
+            for (let i = 1; i <= count; i++) {
+                const lane = document.createElement('div');
+                lane.className = 'lane';
+                
+                const duck = document.createElement('div');
+                duck.className = 'duck-circle';
+                duck.innerText = i;
+                
+                lane.appendChild(duck);
+                raceTrack.appendChild(lane);
+
+                ducks.push({
+                    id: i,
+                    element: duck,
+                    x: 0,           
+                    yOffset: 0,     
+                    wobblePhase: Math.random() * Math.PI * 2, 
+                    finished: false
+                });
+            }
+
+            switchScreen('race');
+            setTimeout(startRace, 800);
+        }
+
+        function startRace() {
+            if (isRacing) return;
+            isRacing = true;
+
+            const baseSpeed = 0.35; 
+
+            raceInterval = setInterval(() => {
+                let winnerFound = false;
+
+                ducks.forEach(duck => {
+                    if (duck.finished) return;
+
+                    // Di chuyển ngang
+                    let randomFactor = 0.5 + Math.random(); 
+                    if (Math.random() < 0.03) randomFactor += 2.5; 
+                    duck.x += baseSpeed * randomFactor;
+
+                    // Di chuyển Wobble
+                    duck.wobblePhase += 0.15; 
+                    const amplitude = 12; 
+                    duck.yOffset = Math.sin(duck.wobblePhase) * amplitude;
+
+                    // Update CSS
+                    // x=0% -> left: -45px (ngoài vạch xuất phát)
+                    // x=100% -> left: calc(100% - 45px) (chạm vạch đích)
+                    duck.element.style.left = `calc(${duck.x}% - 45px)`;
+                    duck.element.style.transform = `translateY(${duck.yOffset}px)`;
+
+                    if (duck.x >= 100) {
+                        duck.x = 100;
+                        duck.finished = true;
+                        if (!winnerFound) {
+                            endRace(duck.id);
+                            winnerFound = true;
+                        }
+                    }
+                });
+
+                if (winnerFound) clearInterval(raceInterval);
+
+            }, frameRate);
+        }
+
+        function endRace(id) {
+            isRacing = false;
+            setTimeout(() => {
+                winnerDisplay.innerText = (id < 10 ? '0' + id : id);
+                switchScreen('result');
+            }, 800);
+        }
+
+        function resetGame() {
+            switchScreen('setup');
+        }
+    </script>
+</body>
+</html>
